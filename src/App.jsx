@@ -1,36 +1,42 @@
 import './App.css'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useMovies } from './hooks/useMovies'
 import { Movies } from './components/Movies'
-import { useEffect } from 'react'
 
-function App() {
-  const { movies } = useMovies()
-  const [query, setQuery] = useState('')
+function useSearch() {
+  const [search, updateSearch] = useState('')
   const [error, setError] = useState(null)
-
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    console.log({ query })
-  }
-
-  const handleChange = (event) => {
-    const newQuery = event.target.value
-    if (newQuery.startsWith(' ')) return
-    setQuery(newQuery)
-  }
+  const isFirstInput = useRef(true)
 
   useEffect(() => {
-    if (query === '') {
+    if (isFirstInput.current) {
+      isFirstInput.current = search === ''
+      return
+    }
+    if (search === '') {
       setError('No se puede buscar una película si el input está vacío')
       return
     }
-    if (query.length < 3) {
+    if (search.length < 3) {
       setError('La película debe tener al menos 3 caracteres')
       return
     }
     setError(null)
-  }, [query])
+  }, [search])
+  return { search, updateSearch, error }
+}
+
+function App() {
+  const { movies } = useMovies()
+  const { search, updateSearch, error } = useSearch()
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+  }
+
+  const handleChange = (event) => {
+    updateSearch(event.target.value)
+  }
 
   return (
     <div className="page">
@@ -39,9 +45,13 @@ function App() {
         <form className="form" onSubmit={handleSubmit}>
           <input
             onChange={handleChange}
-            value={query}
+            value={search}
             name={'query'}
             placeholder="Avengers, Star Wars, The Matrix..."
+            style={{
+              border: '1px solid transparent',
+              borderColor: error ? 'red' : 'transparent'
+            }}
           />
           <button type="submit">Buscar</button>
         </form>
