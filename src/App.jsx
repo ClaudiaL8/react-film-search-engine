@@ -27,11 +27,17 @@ function useSearch() {
 }
 
 function App() {
-  const { movies } = useMovies()
+  const [sort, setSort] = useState(false)
   const { search, updateSearch, error } = useSearch()
+  const { movies, getMovies, loading } = useMovies({ search, sort })
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    getMovies()
+  }
+
+  const handleSort = () => {
+    setSort(!sort)
   }
 
   const handleChange = (event) => {
@@ -53,13 +59,17 @@ function App() {
               borderColor: error ? 'red' : 'transparent'
             }}
           />
+          <input
+            onChange={handleSort}
+            type="checkbox"
+            checked={sort}
+            title="Short by name"
+          />
           <button type="submit">Buscar</button>
         </form>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </header>
-      <main>
-        <Movies movies={movies} />
-      </main>
+      <main>{loading ? <p>Cargando...</p> : <Movies movies={movies} />}</main>
     </div>
   )
 }
