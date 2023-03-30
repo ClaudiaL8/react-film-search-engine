@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useMovies } from './hooks/useMovies'
 import { Movies } from './components/Movies'
 import debounce from 'just-debounce-it'
@@ -34,9 +34,9 @@ function App() {
 
   const debouncedGetMovies = useCallback(
     debounce((search) => {
-      getMovies({ search: newSearch })
-    }, 300),
-    []
+      getMovies({ search })
+    }, 2000),
+    [getMovies]
   )
 
   const handleSubmit = (event) => {
